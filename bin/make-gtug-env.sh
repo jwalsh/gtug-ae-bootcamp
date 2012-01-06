@@ -47,8 +47,12 @@ if ! type python2.5 > /dev/null; then
         echo "Please install Python 2.5.6 from http://www.python.org/getit/releases/2.5.6/"
         echo "Or install http://www.python.org/ftp/python/2.5/python-2.5-macosx.dmg"
         exit 1
+    # else if type apt-get > /dev/null; then
+    # brew install python2.5
     else
-        sudo apt-get python2.5
+        if type apt-get > /dev/null; then
+            sudo apt-get python2.5
+        fi
     fi
 fi
 
@@ -58,11 +62,16 @@ if ! type easy_install > /dev/null; then
     exit 1
 fi
 
+# Validate with
+# sudo rm -rf  /Library/Python/2.6/site-packages/pip-* /usr/local/bin/pip*
+
 if ! type pip > /dev/null; then
+    echo "Installing pip"
     sudo easy-install pip
 fi
 
-if ! type virtualenv > /dev/null; then
+if ! type virtualenv > /dev/null 2> /dev/null; then
+    echo "Installing virtualenv"
     sudo pip install virtualenv
 fi
 
@@ -83,6 +92,14 @@ if [ "$REPLY" = "y" ]; then
     download_zip http://googleappengine.googlecode.com/files/google_appengine_$AE_VERSION.zip $AE_DIR
 fi
 
-ln -f -s $AE_BIN/*.py $ENV_DIR/bin
+# Install App Engine (1.6.1)? (y/n): y
+# ./bin/make-gtug-env.sh: line 87: _BIN/*.py: No such file or directory
+
+if [ -d $ENV_DIR/bin ]; then
+    ln -f -s $AE_BIN/*.py $ENV_DIR/bin
+else 
+    echo "$ENV_DIR/bin not found" 
+    exit 1
+fi 
 
 echo "Type 'source activate' to use this environment"
