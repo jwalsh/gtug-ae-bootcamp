@@ -62,12 +62,9 @@ if ! type easy_install > /dev/null; then
     exit 1
 fi
 
-# Validate with
-# sudo rm -rf  /Library/Python/2.6/site-packages/pip-* /usr/local/bin/pip*
-
 if ! type pip > /dev/null; then
     echo "Installing pip"
-    sudo easy-install pip
+    sudo easy_install pip
 fi
 
 if ! type virtualenv > /dev/null 2> /dev/null; then
