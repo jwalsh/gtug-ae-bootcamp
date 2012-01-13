@@ -7,11 +7,11 @@ need to be ready to start working immediately on your project. If you attend, yo
 
 1. Get your computer configured with all the tools needed to work collaboratively with your future
    team members.
-2. Setup and configure a [GitHub] account with a skeleton project including:
-    1. [App Engine] - web framework with simple user accounts, database, and hosting.
-    2. [Backbone.js] - Rich application HTML5 framework
-    3. [Bootstrap] - HTML design toolkit
-    4. [jQuery] - client side Javascript framework
+2. Setup and configure a [GitHub](http://www.github.com) account with a skeleton project including:
+   1. [App Engine](http://code.google.com/appengine/) - web framework with simple user accounts, database, and hosting.
+   2. [Backbone.js](http://documentcloud.github.com/backbone/) - Rich application HTML5 framework
+   3. [Bootstrap](http://twitter.github.com/bootstrap/) - HTML design toolkit
+   4. [jQuery](http://jquery.com/) - client side Javascript framework
 
 Bring your laptop (Windows, Mac, or Linux) with you; we'll have developers able to help you through
 any rough patches you have with tool installation. Our goal is to get everyone able to modify,
