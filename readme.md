@@ -92,7 +92,7 @@ You should now be able to run the sample application on your machine.
    - Select Port: 8080
    - Click Add
 3. Select your app in the list and click the Run button.
-4. Open a web browser at address: http://localhost:8080
+4. Open a web browser at address: [http://localhost:8080](http://localhost:8080)
 
 You should see the Todos application running in your browser!
 
@@ -108,12 +108,10 @@ Now, run the built-in development web server to run the app:
 
 Open your browser at http://localhost:8080 to view the application.
 
-# Deploying your application to Google Appengine.
+# Deploying your application to Google App Engine.
 
-You can run your application at `http://<your-app-name>.appspot.com`.
-
-1. Go to the [App Engine Admin Console]
-2. Click the Create button.
+1. Go to the [App Engine Admin Console](https://appengine.google.com/)
+2. Click the Create Application button.
    - You may be asked to verify your account via SMS ... do that.
    - Application identifier: `todoapp-<your-name>` (e.g., "todoapp-mckoss").
    - Application Title: "GTUG Bootcamp Sample"
