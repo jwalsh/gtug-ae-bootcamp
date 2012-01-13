@@ -44,7 +44,7 @@ body {
 }
 
 #todoapp {
-    width: 480px;
+    width: 960px;
     margin: 0 auto 40px;
     background: white;
     padding: 20px;
@@ -104,6 +104,7 @@ body {
 #todo-list {
     margin-top: 10px;
 }
+
 #todo-list li {
     padding: 12px 20px 11px 0;
     position: relative;
@@ -130,9 +131,11 @@ body {
 #todo-list .edit {
     display: none;
 }
+
 #todo-list .editing .edit {
     display: block;
 }
+
 #todo-list .editing input {
     width: 444px;
     font-size: 24px;
@@ -148,16 +151,19 @@ body {
     -o-box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
     box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
 }
+
 #todo-list .check {
     position: relative;
     top: 9px;
     margin: 0 10px 0 7px;
     float: left;
 }
+
 #todo-list .done .todo-text {
     text-decoration: line-through;
     color: #777777;
 }
+
 #todo-list .todo-destroy {
     position: absolute;
     right: 5px;
@@ -168,9 +174,11 @@ body {
     height: 20px;
     background: url(destroy.png) no-repeat 0 0;
 }
+
 #todo-list li:hover .todo-destroy {
     display: block;
 }
+
 #todo-list .todo-destroy:hover {
     background-position: 0 -20px;
 }
@@ -180,6 +188,7 @@ body {
   margin-top: 10px;
   color: #777777;
 }
+
 #todo-stats:after {
     content: "\0020";
     display: block;
@@ -188,6 +197,7 @@ body {
     overflow: hidden;
     visibility: hidden;
 }
+
 #todo-stats .todo-count {
     float: left;
 }
