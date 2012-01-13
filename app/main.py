@@ -1,93 +1,119 @@
 #!/usr/bin/env python
+import simplejson as json
+import logging
+import os
+
 from google.appengine.ext import db
 from google.appengine.ext import webapp
+from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp import util
-import simplejson
 
-# the Todo model.
-class Todo(db.Model):
-    content = db.StringProperty()
+from jsonmodel import JSONModel, json_response
+
+
+class Todo(JSONModel):
+    user_id = db.StringProperty()
+    text = db.StringProperty()
     done = db.BooleanProperty()
     order = db.IntegerProperty()
 
-class MainHandler(webapp.RequestHandler):
+
+class UserHandler(webapp.RequestHandler):
+    """ This subclass of RequestHandler sets user and user_id
+    variables to be used in processing the request. """
+    def __init__(self, *args, **kwargs):
+        super(UserHandler, self).__init__(*args, **kwargs)
+        self.user = users.get_current_user()
+        self.user_id = self.user and self.user.user_id() or 'anonymous'
+
+
+class MainHandler(UserHandler):
     def get(self):
-        self.response.out.write(template.render("index.html", {}))
+        username = self.user and self.user.nickname()
+        self.response.out.write(template.render("index.html",
+            {"sign_in": users.create_login_url('/'),
+             "sign_out": users.create_logout_url('/'),
+             "username": username,
+             }))
 
-# the Todos collection handler - used to handle requests
-# on the Todos collection.
-class TodoListHandler(webapp.RequestHandler):
-    # get all todos
-    def get(self):
-        # serialize all Todos, include the ID in the response
-        todos = []
-        for todo in Todo.all():
-            todos.append({
-                "id" : todo.key().id(),
-                "content" : todo.content,
-                "done" : todo.done,
-                "order" : todo.order,
-            })
-        # send them to the client as JSON
-        self.response.out.write(simplejson.dumps(todos))
 
-    # create a todo
-    def post(self):
-        # load the JSON data of the new object
-        data = simplejson.loads(self.request.body)
+class ListHandler(UserHandler):
+    def get_model(self, model_name):
+        if model_name not in handle_models:
+            self.error(404)
+            self.response.out.write("Model '%s' not in %r" % (model_name, handle_models))
+            return None
+        return handle_models[model_name]
 
-        # create the todo item
-        todo = Todo(
-            content = data["content"],
-            done = data["done"],
-            order = data["order"],
-        ).put()
+    # get all list of items
+    def get(self, model_name):
+        model = self.get_model(model_name)
+        if model is None:
+            return
+        query = model.all().filter('user_id =', self.user_id)
+        items = [item.get_dict() for item in query.fetch(1000)]
+        json_response(self.response, items)
 
-        # send it back, and include the new ID.
-        self.response.out.write(simplejson.dumps({
-            "id" : todo.id(),
-            "content" : data["content"],
-            "done" : data["done"],
-            "order" : data["order"],
-        }))
+    # create an item
+    def post(self, model_name):
+        model = self.get_model(model_name)
+        if model is None:
+            return
+        data = json.loads(self.request.body)
+        item = model(user_id=self.user_id)
+        item.set_dict(data)
+        item.put()
+        json_response(self.response, item.get_dict())
+
 
 # The Todo model handler - used to handle requests with
 # a specific ID.
-class TodoItemHandler(webapp.RequestHandler):
-    def put(self, id):
-        # load the updated model
-        data = simplejson.loads(self.request.body)
+class ItemHandler(UserHandler):
+    def get_item(self, model_name, id):
+        if model_name not in handle_models:
+            self.error(404)
+            return None
+        model = handle_models[model_name]
+        item = model.get_by_id(int(id))
+        if item is None:
+            self.error(404)
+            return None
+        return item
 
-        # get it model using the ID from the request path
-        todo = Todo.get_by_id(int(id))
+    def put(self, model_name, id):
+        item = self.get_item(model_name, id)
+        if not item:
+            return
 
-        # update all fields and save to the DB
-        todo.content = data["content"]
-        todo.done = data["done"]
-        todo.order = data["order"]
-        todo.put()
+        data = json.loads(self.request.body)
+        if item.user_id != self.user_id:
+            self.error(403)
+            self.response.out.write(json.dumps({
+                'status': "Write permission failure."
+                }))
+            return
 
-        # send it back using the updated values
-        self.response.out.write(simplejson.dumps({
-            "id" : id,
-            "content" : todo.content,
-            "done" : todo.done,
-            "order" : todo.order,
-        }))
+        item.set_dict(data)
+        item.put()
+        json_response(self.response, item.to_dict())
 
-    def delete(self, id):
-        # find the requested model and delete it.
-        todo = Todo.get_by_id(int(id))
-        todo.delete()
+    def delete(self, model_name, id):
+        item = self.get_item(model_name, id)
+        if item:
+            item.delete()
+
+
+handle_models = {'todo': Todo}
+
 
 def main():
     application = webapp.WSGIApplication([
         ('/', MainHandler),
 
         # REST API requires two handlers - one with an ID and one without.
-        ('/todos', TodoListHandler),
-        ('/todos/(\d+)', TodoItemHandler),
+        ('/data/(\w+)', ListHandler),
+        ('/data/(\w+)/(\d+)', ItemHandler),
     ], debug=True)
     util.run_wsgi_app(application)
 
